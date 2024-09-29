@@ -1,26 +1,32 @@
 import { useRef } from 'react';
 
 export default function Home() {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoRef.current.srcObject = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
     } catch (err) {
       console.error("Error accessing camera: ", err);
     }
   };
 
   const captureImage = async () => {
-    const context = canvasRef.current.getContext('2d');
-    context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-    const dataUrl = canvasRef.current.toDataURL('image/png');
-    await uploadImage(dataUrl);
+    if (videoRef.current && canvasRef.current) {
+        const context = canvasRef.current.getContext('2d');
+        if (context) {
+          context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
+          const dataUrl = canvasRef.current.toDataURL('image/png');
+          await uploadImage(dataUrl);
+        }
+    }
   };
 
-  const uploadImage = async (dataUrl) => {
+  const uploadImage = async (dataUrl: string) => {
     try {
       const response = await fetch('/api/upload', {
         method: 'POST',
