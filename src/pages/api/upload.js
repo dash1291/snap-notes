@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import path from 'path';
 
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
@@ -30,7 +31,7 @@ async function digitizeImage(imageUrl) {
         },
       ],
     });
-    console.log(response.choices[0]);
+    return response['message']['content'];
 }
 
 export default async function handler(req, res) {
