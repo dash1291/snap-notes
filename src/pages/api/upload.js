@@ -1,6 +1,5 @@
 import OpenAI from 'openai';
 
-
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
   });
@@ -39,16 +38,12 @@ export default async function handler(req, res) {
     try {
       const { image } = req.body;
       const base64Data = image;
-      //const filePath = path.join(process.cwd(), `${Date.now()}.png`);
 
-      /*fs.writeFile(filePath, base64Data, 'base64', (err) => {
-        if (err) {
-          console.error('Error saving image:', err);
-          return res.status(500).json({ error: 'Error saving image' });
-        }
-        res.status(200).json({ message: 'Image uploaded successfully', filePath });
-      });*/
-      await digitizeImage(base64Data);
+      const text = await digitizeImage(base64Data);
+      const timestamp = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+      const markdownContent = `### ${timestamp}\n\n${text}\n\n`;
+      const filePath = path.join(process.cwd(), 'digitized.md');
+      fs.appendFileSync(filePath, markdownContent);
     } catch (error) {
       console.error('Error processing request:', error);
       res.status(500).json({ error: 'Error processing request' });
@@ -57,3 +52,4 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method not allowed' });
   }
 }
+
