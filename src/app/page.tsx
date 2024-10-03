@@ -15,7 +15,7 @@ export default function Home() {
         videoRef.current.srcObject = stream as MediaStream;
       }
     } catch (err) {
-      if (err.name === 'OverconstrainedError') {
+      if (err instanceof Error && err.name === 'OverconstrainedError') {
         console.warn("Back camera not available, switching to any available camera.");
         try {
           const fallbackConstraints = {
@@ -73,7 +73,7 @@ export default function Home() {
       <h1>Capture Image</h1>
       <video ref={videoRef} autoPlay style={{ width: '100%', maxWidth: '500px' }}></video>
       <br />
-       <button class="rounded text-white bg-red-400"onClick={captureImage} style={{ margin: '20px', padding: '10px 20px', fontSize: '16px' }}>Capture</button>
+       <button className="rounded text-white bg-red-400"onClick={captureImage} style={{ margin: '20px', padding: '10px 20px', fontSize: '16px' }}>Capture</button>
       <br />
       <canvas ref={canvasRef} width="500" height="500" style={{ display: 'none' }}></canvas>
     </div>
