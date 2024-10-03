@@ -4,8 +4,6 @@ import { list } from "@vercel/blob";
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const blobPath = 'snap-notes/digitized.md';
-
       let existingContent = '';
       
       const listResponse = await list({prefix: 'snap-notes/'});
