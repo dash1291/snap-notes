@@ -1,9 +1,11 @@
 'use client'
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [showOverlay, setShowOverlay] = useState(false);
+
 
   const startCamera = async () => {
     try {
@@ -38,9 +40,11 @@ export default function Home() {
     if (videoRef.current && canvasRef.current) {
         const context = canvasRef.current.getContext('2d');
         if (context) {
+          setShowOverlay(true);
           context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
           const dataUrl = canvasRef.current.toDataURL('image/png');
-          await uploadImage(dataUrl);
+          uploadImage(dataUrl);
+          setTimeout(() => setShowOverlay(false), 500);
         }
     }
   };
@@ -69,13 +73,16 @@ export default function Home() {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+    <div className="relative" style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>Capture Image</h1>
-      <video ref={videoRef} autoPlay style={{ width: '100%', maxWidth: '500px' }}></video>
+      <div>
+        <canvas className={`${showOverlay ? "" : "hidden"} w-full h-96`} ref={canvasRef} width="500" height="500"></canvas>
+        <video className={`${showOverlay ? "hidden" : ""} w-full h-96`} ref={videoRef} height="500" width="500" autoPlay></video>
+      </div>
       <br />
-       <button className="rounded text-white bg-red-400"onClick={captureImage} style={{ margin: '20px', padding: '10px 20px', fontSize: '16px' }}>Capture</button>
+       <button className="text-white bg-red-400" onClick={captureImage} style={{ margin: '20px', padding: '10px 20px', fontSize: '16px' }}>Capture</button>
       <br />
-      <canvas ref={canvasRef} width="500" height="500" style={{ display: 'none' }}></canvas>
+      
     </div>
   );
 }
