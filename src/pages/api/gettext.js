@@ -1,20 +1,25 @@
 import fs from 'fs';
 import path from 'path';
+import fetch from 'node-fetch';
+import { put, list } from "@vercel/blob";
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const filePath = path.join(process.cwd(), 'digitized.md');
+      const blobPath = 'snap-notes/digitized.md';
+
+      let existingContent = '';
       
-      // Check if the file exists
-      if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: 'File not found' });
+      const listResponse = await list({prefix: 'snap-notes/'});
+      const listOfBlobs = listResponse.blobs;
+      const firstBlob = listOfBlobs[0].downloadUrl;
+      const fetchResponse = await fetch(firstBlob);
+      
+      if (fetchResponse.ok) {
+        existingContent = await fetchResponse.text();
       }
 
-      // Read the contents of the file
-      const data = fs.readFileSync(filePath, 'utf-8');
-
-      res.status(200).send(data)
+      res.status(200).send(existingContent)
     } catch (error) {
       console.error('Error reading file:', error);
       res.status(500).json({ error: 'Error reading file' });
