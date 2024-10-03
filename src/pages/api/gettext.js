@@ -1,7 +1,5 @@
-import fs from 'fs';
-import path from 'path';
 import fetch from 'node-fetch';
-import { put, list } from "@vercel/blob";
+import { list } from "@vercel/blob";
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {

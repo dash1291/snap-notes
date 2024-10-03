@@ -1,6 +1,4 @@
 import OpenAI from 'openai';
-import path from 'path';
-import fs from 'fs';
 import { put, list, del } from "@vercel/blob";
 import fetch from 'node-fetch';
 
@@ -88,7 +86,7 @@ export default async function handler(req, res) {
       }
 
       // Write new content at the top
-      const res = await put(blobPath, markdownContent + existingContent, {
+      await put(blobPath, markdownContent + existingContent, {
         access: 'public', // or 'private' depending on your needs
       });
 
