@@ -41,6 +41,8 @@ export default function Home() {
         const context = canvasRef.current.getContext('2d');
         if (context) {
           setShowOverlay(true);
+          canvasRef.current.width = videoRef.current.videoWidth;
+          canvasRef.current.height = videoRef.current.videoHeight;
           context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
           const dataUrl = canvasRef.current.toDataURL('image/png');
           uploadImage(dataUrl);
@@ -73,16 +75,12 @@ export default function Home() {
   };
 
   return (
-    <div className="relative" style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Capture Image</h1>
-      <div>
-        <canvas className={`${showOverlay ? "" : "hidden"} w-full h-96`} ref={canvasRef} width="500" height="500"></canvas>
-        <video className={`${showOverlay ? "hidden" : ""} w-full h-96`} ref={videoRef} height="500" width="500" autoPlay></video>
+    <div className="relative h-screen py-3 flex flex-col align-center text-center items-center">
+      <div className="flex-1 w-full bg-black">
+        <canvas className={`${showOverlay ? "" : "hidden"} opacity-50 w-full`} width={500} height={500} ref={canvasRef}></canvas>
+        <video className={`${showOverlay ? "hidden" : ""} w-full`} ref={videoRef} autoPlay></video>
       </div>
-      <br />
-       <button className="text-white bg-red-400" onClick={captureImage} style={{ margin: '20px', padding: '10px 20px', fontSize: '16px' }}>Capture</button>
-      <br />
-      
+      <button className="mt-3 mb-16 w-36 rounded p-2 font-bold text-white bg-red-400" onClick={captureImage}>Capture</button>
     </div>
   );
 }
