@@ -7,7 +7,6 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
 
- 
 async function deleteAllBlobs() {
   let cursor;
  
@@ -60,14 +59,19 @@ async function digitizeImage(imageUrl) {
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { image } = req.body;
+      const { image, description } = req.body;
       const base64Data = image;
       const text = await digitizeImage(base64Data);
 
       // Prepare markdown content with a timestamp
       const timestamp = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-      const markdownContent = `### ${timestamp}\n\n${text}\n\n`;
-      
+      let markdownContent = '';
+      if (description) {
+        markdownContent = `### ${description}\n\n${text}\n\n`;
+      } else {
+        markdownContent = `### ${timestamp}\n\n${text}\n\n`;
+      }
+
       // Read existing content from Vercel Blob Storage
       const blobPath = 'snap-notes/digitized.md';
       let existingContent = '';

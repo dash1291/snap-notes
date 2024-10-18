@@ -5,6 +5,8 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [description, setDescription] = useState('');
 
 
   const startCamera = async () => {
@@ -38,31 +40,39 @@ export default function Home() {
 
   const captureImage = async () => {
     if (videoRef.current && canvasRef.current) {
-        const context = canvasRef.current.getContext('2d');
-        if (context) {
-          setShowOverlay(true);
-          canvasRef.current.width = videoRef.current.videoWidth;
-          canvasRef.current.height = videoRef.current.videoHeight;
-          context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-          const dataUrl = canvasRef.current.toDataURL('image/png');
-          uploadImage(dataUrl);
-          setTimeout(() => setShowOverlay(false), 500);
-        }
+      const context = canvasRef.current.getContext('2d');
+      if (context) {
+        setShowOverlay(true);
+        canvasRef.current.width = videoRef.current.videoWidth;
+        canvasRef.current.height = videoRef.current.videoHeight;
+        context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
+        setShowModal(true);
+        setTimeout(() => setShowOverlay(false), 500);
+      }
     }
+  };
+
+  const handleDescriptionSubmit = async (description: string) => {
+    const dataUrl = canvasRef.current?.toDataURL('image/png');
+    if (dataUrl) {
+      uploadImage(dataUrl, description);
+    }
+    setShowModal(false);
+    setDescription('');
   };
 
   useEffect(() => {
     startCamera();
   }, []);
 
-  const uploadImage = async (dataUrl: string) => {
+  const uploadImage = async (dataUrl: string, description: string) => {
     try {
       const response = await fetch('/api/upload', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ image: dataUrl }),
+        body: JSON.stringify({ image: dataUrl, description: description }),
       });
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -81,6 +91,22 @@ export default function Home() {
         <video className={`${showOverlay ? "hidden" : ""} w-full`} ref={videoRef} autoPlay></video>
       </div>
       <button className="mt-3 mb-16 w-36 rounded p-2 font-bold text-white bg-red-400" onClick={captureImage}>Capture</button>
+      {showModal && (
+        <div 
+          className="text-black fixed top-32 left-0 transform -translate-y-1/2 bg-white p-4 shadow-lg z-50 w-full"
+        >
+          <h2 className="mb-2">Enter Description (Optional)</h2>
+          <input
+            className="w-full p-2 border-2 border-gray-300 rounded-md"
+            autoFocus={true}
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <br />
+          <button className="border-1 rounded p-2 font-bold text-white hover:bg-red-500 bg-red-400" onClick={() => handleDescriptionSubmit(description)} style={{ marginTop: '10px' }}>Continue</button>
+        </div>
+      )}
     </div>
   );
 }
