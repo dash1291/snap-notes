@@ -67,7 +67,7 @@ export default async function handler(req, res) {
       const timestamp = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
       let markdownContent = '';
       if (description) {
-        markdownContent = `### ${description}\n\n${text}\n\n`;
+        markdownContent = `### ${description} - ${timestamp}\n\n${text}\n\n`;
       } else {
         markdownContent = `### ${timestamp}\n\n${text}\n\n`;
       }
